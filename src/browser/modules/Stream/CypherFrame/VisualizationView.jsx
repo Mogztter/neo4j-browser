@@ -63,14 +63,12 @@ export class Visualization extends Component {
   }
 
   populateDataToStateFromProps(props) {
-    console.log('props.result.records', props.result.records)
     const {
       nodes,
       relationships
     } = bolt.extractNodesAndRelationshipsFromRecordsForOldVis(
       props.result.records
     )
-    console.log('nodes', nodes)
     this.setState({
       nodes,
       relationships,
@@ -82,7 +80,6 @@ export class Visualization extends Component {
     if (this.props.autoComplete) {
       const existingNodeIds = existingNodes.map(node => parseInt(node.id))
       const newNodeIds = newNodes.map(node => parseInt(node.id))
-
       this.getInternalRelationships(existingNodeIds, newNodeIds)
         .then(graph => {
           this.autoCompleteCallback &&
@@ -136,29 +133,44 @@ export class Visualization extends Component {
     existingNodeIds = existingNodeIds.concat(newNodeIds)
     const query =
       'MATCH (a)-[r]->(b) WHERE id(a) IN $existingNodeIds AND id(b) IN $newNodeIds RETURN r;'
-    return new Promise((resolve, reject) => {
-      this.props.bus &&
-        this.props.bus.self(
-          CYPHER_REQUEST,
-          {
-            query,
-            params: { existingNodeIds, newNodeIds },
-            queryType: NEO4J_BROWSER_USER_ACTION_QUERY
-          },
-          response => {
-            if (!response.success) {
-              reject(new Error())
-            } else {
-              resolve({
-                ...bolt.extractNodesAndRelationshipsFromRecordsForOldVis(
-                  response.result.records,
-                  false
-                )
-              })
-            }
+    if (this.props.driver) {
+      const session = this.props.driver.session()
+      return session
+        .run(query, { existingNodeIds, newNodeIds })
+        .then(result => {
+          session.close()
+          return {
+            ...bolt.extractNodesAndRelationshipsFromRecordsForOldVis(
+              result.records,
+              false
+            )
           }
-        )
-    })
+        })
+    } else {
+      return new Promise((resolve, reject) => {
+        this.props.bus &&
+          this.props.bus.self(
+            CYPHER_REQUEST,
+            {
+              query,
+              params: { existingNodeIds, newNodeIds },
+              queryType: NEO4J_BROWSER_USER_ACTION_QUERY
+            },
+            response => {
+              if (!response.success) {
+                reject(new Error())
+              } else {
+                resolve({
+                  ...bolt.extractNodesAndRelationshipsFromRecordsForOldVis(
+                    response.result.records,
+                    false
+                  )
+                })
+              }
+            }
+          )
+      })
+    }
   }
 
   setGraph(graph) {

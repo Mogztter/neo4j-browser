@@ -36,6 +36,8 @@ import { APP_START } from 'shared/modules/app/appDuck'
 import { GlobalStyle } from './styles/global-styles.js'
 import { detectRuntimeEnv } from 'services/utils.js'
 import { NEO4J_CLOUD_DOMAINS } from 'shared/modules/settings/settingsDuck.js'
+import { VisualizationConnectedBus } from 'browser/modules/Stream/CypherFrame/VisualizationView'
+import neo4j from 'neo4j-driver'
 
 // Configure localstorage sync
 applyKeys(
@@ -86,16 +88,17 @@ const env = detectRuntimeEnv(window, NEO4J_CLOUD_DOMAINS)
 // Signal app upstart (for epics)
 store.dispatch({ type: APP_START, url: window.location.href, env })
 
-const AppInit = () => {
+const AppInit = props => {
   return (
     <Provider store={store}>
       <BusProvider bus={bus}>
         <>
           <GlobalStyle />
-          <App
-            desktopIntegrationPoint={
-              window && window.neo4jDesktopApi ? window.neo4jDesktopApi : null
-            }
+          <VisualizationConnectedBus
+            result={props.result}
+            driver={props.driver}
+            updateStyle={() => {}}
+            autoComplete
           />
         </>
       </BusProvider>

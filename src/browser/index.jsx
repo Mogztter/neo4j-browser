@@ -20,25 +20,22 @@
 import './init.js'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Visualization } from 'browser/modules/Stream/CypherFrame/VisualizationView'
+import AppInit from './AppInit.jsx'
 import neo4j from 'neo4j-driver'
+;(async () => {
+  const uri = 'bolt://localhost:7687'
+  const user = 'neo4j'
+  const password = 'root'
 
-const uri = 'bolt://localhost:7687'
-const user = 'neo4j'
-const password = 'root'
+  const driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
 
-const driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
-
-;(async function() {
   const session = driver.session()
   const result = await session.run(
     'MATCH (ee:Person)-[:KNOWS]-(friends) WHERE ee.name = "Emil" RETURN ee, friends'
   )
+  session.close()
   ReactDOM.render(
-    <Visualization result={result} updateStyle={() => {}} />,
+    <AppInit result={result} driver={driver} />,
     document.getElementById('mount')
   )
-  // on application exit:
-  session.close()
-  driver.close()
 })()
