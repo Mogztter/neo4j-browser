@@ -47,6 +47,8 @@ export class ExplorerComponent extends Component {
     super(props)
     const graphStyle = neoGraphStyle()
     this.defaultStyle = graphStyle.toSheet()
+    console.log('constructor', this.props.nodes)
+    console.log('constructor', this.props.relationships)
     let relationships = this.props.relationships
     let nodes = deduplicateNodes(this.props.nodes)
     let selectedItem = ''
@@ -177,6 +179,8 @@ export class ExplorerComponent extends Component {
     // If the legend component has the style it will ask the neoGraphStyle object for styling before the graph component,
     // and also doing this in a different order from the graph. This leads to different default colors being assigned to different labels.
     var legend
+    console.log(this.props.nodes)
+    console.log(this.props.relationships)
     if (this.state.freezeLegend) {
       legend = (
         <LegendComponent
