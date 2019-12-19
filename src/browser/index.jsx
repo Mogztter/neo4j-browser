@@ -23,19 +23,33 @@ import ReactDOM from 'react-dom'
 import AppInit from './AppInit.jsx'
 import neo4j from 'neo4j-driver'
 ;(async () => {
-  const uri = 'bolt://localhost:7687'
-  const user = 'neo4j'
-  const password = 'root'
-
-  const driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
-
-  const session = driver.session()
-  const result = await session.run(
-    'MATCH (ee:Person)-[:KNOWS]-(friends) WHERE ee.name = "Emil" RETURN ee, friends'
-  )
-  session.close()
-  ReactDOM.render(
-    <AppInit result={result} driver={driver} />,
-    document.getElementById('mount')
-  )
+  try {
+    let driver
+    let query
+    if (window.neo4jGraphOpts && typeof window.neo4jGraphOpts === 'function') {
+      const graphOpts = await window.neo4jGraphOpts()
+      driver = neo4j.driver(
+        graphOpts.uri,
+        neo4j.auth.basic(graphOpts.username, graphOpts.password)
+      )
+      query = graphOpts.query
+    } else {
+      const uri = 'bolt://localhost:7687'
+      const user = 'neo4j'
+      const password = 'root'
+      driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
+      //query = 'MATCH (ee:Person)-[:KNOWS]-(friends) WHERE ee.name = "Emil" RETURN ee, friends'
+      query =
+        'MATCH (bacon:Person {name:"Kevin Bacon"})-[*1..2]-(hollywood) RETURN DISTINCT hollywood'
+    }
+    const session = driver.session()
+    const result = await session.run(query)
+    session.close()
+    ReactDOM.render(
+      <AppInit result={result} driver={driver} />,
+      document.getElementById('mount')
+    )
+  } catch (err) {
+    console.log('Unable to start the application', err)
+  }
 })()

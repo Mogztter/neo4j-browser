@@ -111,6 +111,7 @@ export class GraphComponent extends Component {
       )
       this.props.onGraphModelChange(getGraphStats(this.graph))
       this.graphView.update()
+      this.setState({ graphCompleted: true })
       this.graphEH.onItemMouseOut()
     }
   }
@@ -164,7 +165,11 @@ export class GraphComponent extends Component {
   render() {
     return (
       <StyledSvgWrapper>
-        <svg className="neod3viz" ref={this.graphInit.bind(this)} />
+        <svg
+          className="neod3viz"
+          ref={this.graphInit.bind(this)}
+          data-completed={this.state.graphCompleted ? 'true' : ''}
+        />
         {this.zoomButtons()}
       </StyledSvgWrapper>
     )

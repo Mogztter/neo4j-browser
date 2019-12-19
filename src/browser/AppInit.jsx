@@ -38,6 +38,9 @@ import { detectRuntimeEnv } from 'services/utils.js'
 import { NEO4J_CLOUD_DOMAINS } from 'shared/modules/settings/settingsDuck.js'
 import { VisualizationConnectedBus } from 'browser/modules/Stream/CypherFrame/VisualizationView'
 import neo4j from 'neo4j-driver'
+import * as viewTypes from 'shared/modules/stream/frameViewTypes'
+import Display from 'browser-components/Display'
+import { StyledFrameBody } from 'browser/modules/Frame/styled'
 
 // Configure localstorage sync
 applyKeys(
@@ -94,12 +97,15 @@ const AppInit = props => {
       <BusProvider bus={bus}>
         <>
           <GlobalStyle />
-          <VisualizationConnectedBus
-            result={props.result}
-            driver={props.driver}
-            updateStyle={() => {}}
-            autoComplete
-          />
+          <Display if={true} lazy>
+            <VisualizationConnectedBus
+              result={props.result}
+              driver={props.driver}
+              updateStyle={() => {}}
+              fullscreen
+              autoComplete
+            />
+          </Display>
         </>
       </BusProvider>
     </Provider>

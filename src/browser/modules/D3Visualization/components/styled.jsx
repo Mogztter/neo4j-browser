@@ -193,6 +193,7 @@ export const StyledStatusBarWrapper = styled.div`
   display: none;
 `
 export const StyledStatusBar = styled.div`
+  background-color: white;
   min-height: 39px;
   line-height: 39px;
   color: ${props => props.theme.secondaryText};
@@ -266,6 +267,7 @@ export const StyledLegendContents = styled.ul`
 `
 
 export const StyledLegendRow = styled.div`
+  background-color: white;
   border-bottom: 1px solid #e6e9ef;
   &.contracted {
     max-height: ${legendRowHeight}px;
